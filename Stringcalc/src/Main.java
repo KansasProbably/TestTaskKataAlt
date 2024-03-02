@@ -7,7 +7,7 @@ import java.util.Scanner;
 //Результатом вычитания строки из строки, является строка, в которой удалена переданная подстрока или сама исходная строка, если в нее нет вхождения вычитаемой строки (смотрите пример).
 //Калькулятор должен принимать на вход числа от 1 до 10 включительно, не более. И строки длинной не более 10 символов. Если строка, полученная в результате работы приложения длиннее 40 символов, то в выводе после 40 символа должны стоять три точки (...)
 //Калькулятор умеет работать только с целыми числами.
-//???Первым аргументом выражения, подаваемого на вход, должна быть строка, при вводе пользователем выражения вроде 3 + "hello", калькулятор должен выбросить исключение и прекратить свою работу.
+//Первым аргументом выражения, подаваемого на вход, должна быть строка, при вводе пользователем выражения вроде 3 + "hello", калькулятор должен выбросить исключение и прекратить свою работу.
 //При вводе пользователем неподходящих чисел, строк или неподдерживаемых операций (например, деление строки на строку) приложение выбрасывает исключение и завершает свою работу.
 //При вводе пользователем выражения, не соответствующего одной из вышеописанных арифметических операций, приложение выбрасывает исключение и завершает свою работу.
 
@@ -17,15 +17,18 @@ import java.util.Scanner;
 
 
 public class Main {
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Введите данные: ");
         String input = scanner.nextLine();
-        //input=input.replace("\"","");
+        calc(input);
+        printInQuotes(calc(input));
+
+    }
+
+    static String calc(String input) {
         String[] actions = {"+", "-", "/", "*"};
-        String[] regexActions = {"\\+", "-", "/", "\\*"};
-
-
+        String[] regexActions = {"\\+", " - ", "/", "\\*"};
         // проверка знака операции
         int actionIndex = -1;
         for (int i = 0; i < actions.length; i++) {
@@ -37,46 +40,55 @@ public class Main {
         if (actionIndex == -1) {
             throw new RuntimeException("Неверный знак  операции");
         }
+
         String[] data = input.split(regexActions[actionIndex]);
         if (data.length > 2) {
             throw new RuntimeException("Допустимы операции только с двумя строками/числами");
         }
 
+
         String a, b;
         a = data[0];
-        b = data[1];
-        if (a.length() > 10 || b.length() > 10) {
+        if(a.startsWith("\"")) {
+            b = data[1];
+        }else {
+            throw new RuntimeException("Первое значение - строка!");
+        }
+        a=a.replace(" ","");
+        b=b.replace(" ","");
+        if (a.length() > 12 || b.length() > 12) {
             throw new RuntimeException("Максимальный размер строки - 10 символов");
         }
-
 
 
         String result = null;
         switch (actions[actionIndex]) {
             case "+":
-                a=a.replace("\"","");
-                b=b.replace("\"","");
+                a = a.replace("\"", "");
+                b = b.replace("\"", "");
                 result = a + b;
                 break;
             case "-":
-                a=a.replace("\"","");
-                b=b.replace("\"","");
+                a = a.replace("\"", "");
+                b = b.replace("\"", "");
                 result = a.replace(b, "");
                 break;
             case "*":
-                if(b.contains("\"")){
-                    throw new RuntimeException("умножить можно только на число");}
+                if (b.contains("\"")) {
+                    throw new RuntimeException("умножить можно только на число");
+                }
                 int c = Integer.parseInt(b);
                 if (c > 10) {
                     throw new RuntimeException("числа должны быть от 1 до 10");
                 }
-                a=a.replace("\"","");
+                a = a.replace("\"", "");
                 result = a.repeat(c);
                 break;
             case "/":
-                a=a.replace("\"","");
-                if(b.contains("\"")){
-                    throw new RuntimeException("делить можно только на число");}
+                a = a.replace("\"", "");
+                if (b.contains("\"")) {
+                    throw new RuntimeException("делить можно только на число");
+                }
                 int e = Integer.parseInt(b);
                 if (e > 10) {
                     throw new RuntimeException("числа должны быть от 1 до 10");
@@ -85,18 +97,24 @@ public class Main {
                 result = a.substring(0, result1);
 
                 break;
+
         }
-        if (result.length() > 40) {
-            printInQuotes(result.substring(0, 40) + "...");
-        } else {
-            printInQuotes(result);
-        }
+
+
+        return result;
+
 
     }
 
-    static void printInQuotes(String text) {
-        System.out.println("\"" + text + "\"");
 
-
+    static String printInQuotes(String text) {
+        if(text.length()>40){
+            System.out.println("\"" + text.substring(0,40) +"..." + "\"");
+        }else{
+        System.out.println("\"" + text + "\"");}
+        return text;
     }
 }
+
+
+
